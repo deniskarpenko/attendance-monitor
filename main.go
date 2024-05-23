@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/deniskarpenko/attendance-monitor/database"
 	"log"
 )
@@ -23,7 +24,16 @@ func main() {
 	}*/
 	dbData := database.DBInstance()
 
-	log.Printf(dbData.GetConnection())
-	log.Printf("Connection:%s Port:%s Username:%s Password:%s Database:%s ", dbData.GetConnection(), dbData.GetPort(), dbData.GetUsername(), dbData.GetPassword())
+	dbData.Ping()
+	createTable(dbData)
+	defer dbData.Close()
+}
 
+func createTable(db *sql.DB) {
+	query := `CREATE TABLE IF NOT EXISTS punches (id SERIAL NOT NULL PRIMARY KEY, email varchar(100))`
+
+	_, err := db.Exec(query)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
